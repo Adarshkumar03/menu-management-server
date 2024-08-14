@@ -4,6 +4,7 @@ const router = Router();
 
 router.get("/", itemControllers.getItems);
 router.get("/:itemId", itemControllers.getItem);
+router.get("/search", itemControllers.getItemByName);
 router.post("/", itemControllers.createItem);
 router.post("/:itemId", itemControllers.updateItem);
 
