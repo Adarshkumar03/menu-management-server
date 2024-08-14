@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
-export const getCategories = async (req: any, res: any) => {
+export const getCategories = async (req, res) => {
   try {
     const categories = await prisma.category.findMany();
     res.status(200).json(categories);
@@ -10,7 +10,7 @@ export const getCategories = async (req: any, res: any) => {
   }
 };
 
-export const getCategory = async (req: any, res: any) => {
+export const getCategory = async (req, res) => {
   try {
     const category = await prisma.category.findUnique({
       where: {
@@ -25,7 +25,7 @@ export const getCategory = async (req: any, res: any) => {
   }
 };
 
-export const createCategory = async (req: any, res: any) => {
+export const createCategory = async (req, res) => {
   const {
     name,
     image,
@@ -57,7 +57,7 @@ export const createCategory = async (req: any, res: any) => {
   }
 };
 
-export const updateCategory = async (req: any, res: any) => {
+export const updateCategory = async (req, res) => {
   const { name, image, description, taxApplicable, tax, taxType } = req.body;
   try {
     await prisma.category.update({

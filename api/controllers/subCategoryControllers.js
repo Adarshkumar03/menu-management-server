@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { connect } from "http2";
 const prisma = new PrismaClient();
 
-export const getSubCategories = async (req: any, res: any) => {
+export const getSubCategories = async (req, res) => {
   try {
     const subCategories = await prisma.subCategory.findMany();
     res.status(200).json(subCategories);
@@ -11,7 +11,7 @@ export const getSubCategories = async (req: any, res: any) => {
   }
 };
 
-export const getSubCategory = async (req: any, res: any) => {
+export const getSubCategory = async (req, res) => {
   try {
     console.log("1111 Inside Get Category with id:", req.params.subCategoryId);
     const subCategory = await prisma.subCategory.findUnique({
@@ -29,7 +29,7 @@ export const getSubCategory = async (req: any, res: any) => {
   }
 };
 
-export const createSubCategory = async (req: any, res: any) => {
+export const createSubCategory = async (req, res) => {
   const { name, image, description, taxApplicable, tax, categoryId, items } =
     req.body;
   try {
@@ -58,7 +58,7 @@ export const createSubCategory = async (req: any, res: any) => {
   }
 };
 
-export const updateSubCategory = async (req: any, res: any) => {
+export const updateSubCategory = async (req, res) => {
   const { name, image, description, taxApplicable, tax } = req.body;
   try {
     await prisma.category.update({

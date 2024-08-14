@@ -2,24 +2,15 @@
   "name": "menu-management-server",
   "version": "1.0.0",
   "description": "",
-  "main": "index.ts",
+  "main": "index.js",
   "type": "module",
   "prisma": {
-    "seed": "npx tsx prisma/seed.ts"
+    "seed": "npx tsx prisma/seed.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon src/api/index.ts",
-    "build": "rimraf dist && tsc",
-    "ts.check": "tsc --project tsconfig.json",
-    "add-build": "git add dist",
+    "start": "nodemon api/index.js",
     "postinstall": "prisma generate && prisma migrate deploy"
   },
-  "pre-commit": [
-    "ts.check",
-    "build",
-    "add-build"
-  ],
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -28,16 +19,10 @@
     "@types/node": "^22.2.0",
     "express": "^4.19.2",
     "nodemon": "^3.1.4",
-    "prisma": "^5.18.0",
-    "ts-node": "^10.9.2",
-    "tsx": "^4.17.0",
-    "typescript": "^5.5.4"
+    "prisma": "^5.18.0"
   },
   "dependencies": {
     "@prisma/client": "^5.18.0",
-    "dotenv": "^16.4.5",
-    "pre-commit": "^1.2.2",
-    "rimraf": "^6.0.1",
-    "ts-node-dev": "^2.0.0"
+    "dotenv": "^16.4.5"
   }
 }

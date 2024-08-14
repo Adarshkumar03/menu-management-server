@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
-export const getItems = async (req: any, res: any) => {
+export const getItems = async (req, res) => {
   try {
     const items = await prisma.item.findMany();
     res.status(200).json(items);
@@ -10,7 +10,7 @@ export const getItems = async (req: any, res: any) => {
   }
 };
 
-export const getItem = async (req: any, res: any) => {
+export const getItem = async (req, res) => {
   try {
     const item = await prisma.item.findUnique({
       where: {
@@ -25,7 +25,7 @@ export const getItem = async (req: any, res: any) => {
   }
 };
 
-export const getItemByName = async (req: any, res: any) => {
+export const getItemByName = async (req, res) => {
   try {
     const item = await prisma.item.findFirst({
       where: {
@@ -38,7 +38,7 @@ export const getItemByName = async (req: any, res: any) => {
   }
 };
 
-export const createItem = async (req: any, res: any) => {
+export const createItem = async (req, res) => {
   const {
     name,
     image,
@@ -76,7 +76,7 @@ export const createItem = async (req: any, res: any) => {
   }
 };
 
-export const updateItem = async (req: any, res: any) => {
+export const updateItem = async (req, res) => {
   const { name, image, description, taxApplicable, tax } = req.body;
   try {
     await prisma.item.update({

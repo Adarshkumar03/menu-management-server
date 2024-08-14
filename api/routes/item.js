@@ -1,5 +1,5 @@
 import { Router } from "express";
-import * as itemControllers from "../controllers/itemControllers";
+import * as itemControllers from "../controllers/itemControllers.js";
 const router = Router();
 
 router.get("/", itemControllers.getItems);
