@@ -6,22 +6,25 @@ export const getCategories = async (req, res) => {
     const categories = await prisma.category.findMany();
     res.status(200).json(categories);
   } catch (error) {
-    res.status(400).json(error);
+    res.status(500).json({ success: false, error: "Failed to fetch categories." });
   }
 };
 
 export const getCategory = async (req, res) => {
+  const { categoryId } = req.params;
   try {
     const category = await prisma.category.findUnique({
-      where: {
-        id: parseInt(req.params.categoryId),
-      },
+      where: { id: parseInt(categoryId) },
     });
+
+    if (!category) {
+      return res.status(404).json({ success: false, error: "Category not found." });
+    }
 
     res.status(200).json(category);
   } catch (error) {
-    console.log(error);
-    res.status(400).json(error);
+    console.error(error);
+    res.status(500).json({ success: false, error: "Failed to fetch category." });
   }
 };
 
@@ -35,8 +38,13 @@ export const createCategory = async (req, res) => {
     taxType,
     subCategories,
   } = req.body;
+
+  if (!name || !subCategories) {
+    return res.status(400).json({ success: false, error: "Name and subCategories are required." });
+  }
+
   try {
-    await prisma.category.create({
+    const category = await prisma.category.create({
       data: {
         name,
         image,
@@ -45,38 +53,31 @@ export const createCategory = async (req, res) => {
         tax,
         taxType,
         subCategories: {
-          connect: [...subCategories],
+          connect: subCategories.map(id => ({ id })),
         },
       },
     });
 
-    res.status(201).json({ message: "Category created successfully" });
+    res.status(201).json({ success: true, message: "Category created successfully", category });
   } catch (error) {
     console.error(error);
-    res.status(400).json({ success: false, error: error });
+    res.status(500).json({ success: false, error: "Failed to create category." });
   }
 };
 
 export const updateCategory = async (req, res) => {
+  const { categoryId } = req.params;
   const { name, image, description, taxApplicable, tax, taxType } = req.body;
+
   try {
-    await prisma.category.update({
-      where: {
-        id: parseInt(req.params.categoryId),
-      },
-      data: {
-        name,
-        image,
-        description,
-        taxApplicable,
-        tax,
-        taxType,
-      },
+    const updatedCategory = await prisma.category.update({
+      where: { id: parseInt(categoryId) },
+      data: { name, image, description, taxApplicable, tax, taxType },
     });
 
-    res.status(201).json({ message: "Category updated successfully" });
+    res.status(200).json({ success: true, message: "Category updated successfully", updatedCategory });
   } catch (error) {
     console.error(error);
-    res.status(400).json({ success: false, error });
+    res.status(500).json({ success: false, error: "Failed to update category." });
   }
 };

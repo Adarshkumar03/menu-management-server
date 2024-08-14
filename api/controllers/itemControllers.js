@@ -6,35 +6,44 @@ export const getItems = async (req, res) => {
     const items = await prisma.item.findMany();
     res.status(200).json(items);
   } catch (error) {
-    res.status(400).json(error);
+    console.error("Failed to fetch items:", error);
+    res.status(500).json({ success: false, error: "Failed to fetch items." });
   }
 };
 
 export const getItem = async (req, res) => {
+  const { itemId } = req.params;
   try {
     const item = await prisma.item.findUnique({
-      where: {
-        id: parseInt(req.params.itemId),
-      },
+      where: { id: parseInt(itemId) },
     });
+
+    if (!item) {
+      return res.status(404).json({ success: false, error: "Item not found." });
+    }
 
     res.status(200).json(item);
   } catch (error) {
-    console.log(error);
-    res.status(400).json(error);
+    console.error(`Failed to fetch item with ID ${itemId}:`, error);
+    res.status(500).json({ success: false, error: "Failed to fetch item." });
   }
 };
 
 export const getItemByName = async (req, res) => {
+  const { name } = req.body;
   try {
     const item = await prisma.item.findFirst({
-      where: {
-        name: req.body.name,
-      },
+      where: { name },
     });
+
+    if (!item) {
+      return res.status(404).json({ success: false, error: "Item not found." });
+    }
+
     res.status(200).json(item);
   } catch (error) {
-    res.status(400).json(error);
+    console.error(`Failed to fetch item with name ${name}:`, error);
+    res.status(500).json({ success: false, error: "Failed to fetch item." });
   }
 };
 
@@ -50,8 +59,13 @@ export const createItem = async (req, res) => {
     discount,
     totalAmount,
   } = req.body;
+
+  if (!name || !subCategoryId || !baseAmount || !totalAmount) {
+    return res.status(400).json({ success: false, error: "Missing required fields." });
+  }
+
   try {
-    await prisma.item.create({
+    const newItem = await prisma.item.create({
       data: {
         name,
         image,
@@ -62,39 +76,41 @@ export const createItem = async (req, res) => {
         discount,
         totalAmount,
         subCategory: {
-          connect: {
-            id: subCategoryId,
-          },
+          connect: { id: subCategoryId },
         },
       },
     });
 
-    res.status(201).json({ message: "item created successfully" });
+    res.status(201).json({ success: true, message: "Item created successfully", newItem });
   } catch (error) {
-    console.error(error);
-    res.status(400).json({ success: false, error: error });
+    console.error("Failed to create item:", error);
+    res.status(500).json({ success: false, error: "Failed to create item." });
   }
 };
 
 export const updateItem = async (req, res) => {
-  const { name, image, description, taxApplicable, tax } = req.body;
+  const { itemId } = req.params;
+  const { name, image, description, taxApplicable, tax, baseAmount, discount, totalAmount, subCategoryId } = req.body;
+
   try {
-    await prisma.item.update({
-      where: {
-        id: parseInt(req.params.itemId),
-      },
+    const updatedItem = await prisma.item.update({
+      where: { id: parseInt(itemId) },
       data: {
         name,
         image,
         description,
         taxApplicable,
         tax,
+        baseAmount,
+        discount,
+        totalAmount,
+        subCategory: subCategoryId ? { connect: { id: subCategoryId } } : undefined,
       },
     });
 
-    res.status(201).json({ message: "item updated successfully" });
+    res.status(200).json({ success: true, message: "Item updated successfully", updatedItem });
   } catch (error) {
-    console.error(error);
-    res.status(400).json({ success: false, error });
+    console.error(`Failed to update item with ID ${itemId}:`, error);
+    res.status(500).json({ success: false, error: "Failed to update item." });
   }
 };
