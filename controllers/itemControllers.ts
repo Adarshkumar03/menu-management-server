@@ -27,11 +27,16 @@ export const getItem = async (req: any, res: any) => {
 
 export const getItemByName = async (req: any, res: any) => {
   try {
-    
+    const item = await prisma.item.findFirst({
+      where: {
+        name: req.body.name,
+      },
+    });
+    res.status(200).json(item);
   } catch (error) {
-    
+    res.status(400).json(error);
   }
-}
+};
 
 export const createItem = async (req: any, res: any) => {
   const {
