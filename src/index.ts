@@ -3,7 +3,7 @@ const app = express();
 import dotenv from "dotenv";
 dotenv.config();
 
-import categoryRoutes from "./routes/category";
+import categoryRoutes from "./routes/item";
 import itemRoutes from "./routes/item";
 import subCategoryRoutes from "./routes/subCategory";
 
