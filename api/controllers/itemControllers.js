@@ -93,19 +93,24 @@ export const updateItem = async (req, res) => {
   const { name, image, description, taxApplicable, tax, baseAmount, discount, totalAmount, subCategoryId } = req.body;
 
   try {
+    const updateData = {
+      name,
+      image,
+      description,
+      taxApplicable,
+      tax,
+      baseAmount,
+      discount,
+      totalAmount,
+    };
+    
+    if (subCategoryId) {
+      updateData.subCategory = { connect: { id: subCategoryId } };
+    }
+    
     const updatedItem = await prisma.item.update({
       where: { id: parseInt(itemId) },
-      data: {
-        name,
-        image,
-        description,
-        taxApplicable,
-        tax,
-        baseAmount,
-        discount,
-        totalAmount,
-        subCategory: subCategoryId ? { connect: { id: subCategoryId } } : undefined,
-      },
+      data: updateData,
     });
 
     res.status(200).json({ success: true, message: "Item updated successfully", updatedItem });

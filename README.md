@@ -29,4 +29,52 @@ This project is a Node.js backend server for managing a hierarchical menu system
    ```npx prisma migrate dev```
 5. **Start the server**
    ```npm start```      
-               
+
+## API Routes
+
+### Categories
+- Get All Categories
+  - `GET /category`
+  - Returns a list of all categories
+- Get a Single Category by ID
+  - `GET /category/:categoryId`
+  - Returns a single categrory based on the ID provided
+- Create a New Category
+  - `POST /category`
+  - Create a new category with the privided details
+- Update an Existing Category
+  - `POST /category/:categoryId`
+
+### Subcategories
+- Get All Subcategories
+  - `GET /subCategory`
+  - Returns a list of all subCategories
+- Get a Single Subcategory by ID
+  - `GET /subCategory/:subCategoryId`
+  - Returns a single subCategrory based on the ID provided
+- Create a New Subcategory
+  - `POST /subCategory`
+  - Create a new subCategory with the privided details
+- Update an Existing Subcategory
+  - `POST /subCategory/:subCategoryId`
+
+### Items
+- Get All Items
+  - `GET /item`
+  - Returns a list of all items.
+
+- Get a Single Item by ID
+  - `GET /item/:itemId`
+  - Returns a single item based on the ID provided.
+
+- Search Items by Name
+  - `GET /item/search`
+  - Searches for items by name.
+
+- Create a New Item
+  - `POST /item`
+  - Creates a new item under a specific subcategory or category.
+
+- Update an Existing Item
+  - `POST /item/:itemId`
+  - Updates the details of an existing item.
