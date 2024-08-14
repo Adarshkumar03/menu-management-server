@@ -3,9 +3,9 @@ const app = express();
 import dotenv from "dotenv";
 dotenv.config();
 
-import categoryRoutes from "./routes/item";
-import itemRoutes from "./routes/item";
-import subCategoryRoutes from "./routes/subCategory";
+import categoryRoutes from "../routes/item";
+import itemRoutes from "../routes/item";
+import subCategoryRoutes from "../routes/subCategory";
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
