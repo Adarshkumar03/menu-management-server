@@ -31,21 +31,24 @@ export const getItem = async (req, res) => {
   }
 };
 
-//Fetch item by name
 export const getItemByName = async (req, res) => {
   // Extract and decode the item name from the URL parameters
-  const name = decodeURIComponent(req.params.name);
+  const name = decodeURIComponent(req.params.name).toLowerCase();
   try {
-    // Search for the first item in the database that matches the provided name
+    // Search for the first item in the database that matches the provided name, case-insensitively
     const item = await prisma.item.findFirst({
-      where: { name },
+      where: {
+        name: {
+          // Case-insensitive search
+          contains: name,
+          mode: 'insensitive',
+        },
+      },
     });
-
     // If the item is not found, return a 404 response with an error message
     if (!item) {
       return res.status(404).json({ success: false, error: "Item not found." });
     }
-
     // If the item is found, return it with a 200 status code
     res.status(200).json(item);
   } catch (error) {
