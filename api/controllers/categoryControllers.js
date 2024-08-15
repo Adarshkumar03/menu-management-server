@@ -6,7 +6,9 @@ export const getCategories = async (req, res) => {
     const categories = await prisma.category.findMany();
     res.status(200).json(categories);
   } catch (error) {
-    res.status(500).json({ success: false, error: "Failed to fetch categories." });
+    res
+      .status(500)
+      .json({ success: false, error: "Failed to fetch categories." });
   }
 };
 
@@ -18,13 +20,79 @@ export const getCategory = async (req, res) => {
     });
 
     if (!category) {
-      return res.status(404).json({ success: false, error: "Category not found." });
+      return res
+        .status(404)
+        .json({ success: false, error: "Category not found." });
     }
 
     res.status(200).json(category);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, error: "Failed to fetch category." });
+    res
+      .status(500)
+      .json({ success: false, error: "Failed to fetch category." });
+  }
+};
+
+export const getSubCategories = async (req, res) => {
+  const categoryId = parseInt(req.params.categoryId);
+  try {
+    const subcategories = await prisma.subCategory.findMany({
+      where: {
+        categoryId: categoryId,
+      },
+    });
+    if (!subcategories.length) {
+      return res.status(404).json({
+        succes: false,
+        error: "No subcategories found for this category.",
+      });
+    }
+    res.status(200).json(subcategories);
+  } catch (error) {
+    console.error("Error fetching subcategories:", error);
+    res.status(500).json({
+      succes: false,
+      error: "An error occurred while fetching subcategories.",
+    });
+  }
+};
+
+export const getItems = async (req, res) => {
+  const categoryId = parseInt(req.params.categoryId);
+  try {
+    const subCategories = await prisma.subCategory.findMany({
+      where: {
+        categoryId: categoryId,
+      },
+      select: {
+        id: true,
+      },
+    });
+    if (!subCategories.length) {
+      return res
+        .status(404)
+        .json({ message: "No subcategories found for this category." });
+    }
+    const subCategoryIds = subCategories.map((subCategory) => subCategory.id);
+
+    const items = await prisma.item.findMany({
+      where: {
+        subCategoryId: {
+          in: subCategoryIds,
+        },
+      },
+    });
+    if (!items.length) {
+      return res
+        .status(404)
+        .json({ message: "No items found for this category." });
+    }
+
+    res.status(200).json(items);
+  } catch (error) {
+    console.error("Error fetching items:", error);
+    res.status(500).json({ error: "An error occurred while fetching items." });
   }
 };
 
@@ -40,7 +108,9 @@ export const createCategory = async (req, res) => {
   } = req.body;
 
   if (!name || !subCategories) {
-    return res.status(400).json({ success: false, error: "Name and subCategories are required." });
+    return res
+      .status(400)
+      .json({ success: false, error: "Name and subCategories are required." });
   }
 
   try {
@@ -53,31 +123,71 @@ export const createCategory = async (req, res) => {
         tax,
         taxType,
         subCategories: {
-          connect: subCategories.map(id => ({ id })),
+          connect: subCategories.map((id) => ({ id })),
         },
       },
     });
 
-    res.status(201).json({ success: true, message: "Category created successfully", category });
+    res.status(201).json({
+      success: true,
+      message: "Category created successfully",
+      category,
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, error: "Failed to create category." });
+    res
+      .status(500)
+      .json({ success: false, error: "Failed to create category." });
   }
 };
 
 export const updateCategory = async (req, res) => {
   const { categoryId } = req.params;
-  const { name, image, description, taxApplicable, tax, taxType } = req.body;
+  console.log(categoryId);
+
+  const {
+    name,
+    image,
+    description,
+    taxApplicable,
+    tax,
+    taxType,
+    subCategories,
+  } = req.body;
 
   try {
+    // Initialize an empty object for update data
+    const updateData = {};
+    // Conditionally add properties to updateData based on request body
+    if (name !== undefined) updateData.name = name;
+    if (image !== undefined) updateData.image = image;
+    if (description !== undefined) updateData.description = description;
+    if (taxApplicable !== undefined) updateData.taxApplicable = taxApplicable;
+    if (tax !== undefined) updateData.tax = tax;
+    if (taxType !== undefined) updateData.taxType = taxType;
+
+    // Conditionally handle subCategories
+    if (subCategories && subCategories.length > 0) {
+      updateData.subCategories = {
+        connect: subCategories.map((sub) => ({ id: sub })),
+      };
+    }
+
+    // Perform the update
     const updatedCategory = await prisma.category.update({
       where: { id: parseInt(categoryId) },
-      data: { name, image, description, taxApplicable, tax, taxType },
+      data: updateData,
     });
 
-    res.status(200).json({ success: true, message: "Category updated successfully", updatedCategory });
+    res.status(200).json({
+      success: true,
+      message: "Category updated successfully",
+      updatedCategory,
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, error: "Failed to update category." });
+    res
+      .status(500)
+      .json({ success: false, error: "Failed to update category." });
   }
 };

@@ -90,32 +90,51 @@ export const createItem = async (req, res) => {
 
 export const updateItem = async (req, res) => {
   const { itemId } = req.params;
-  const { name, image, description, taxApplicable, tax, baseAmount, discount, totalAmount, subCategoryId } = req.body;
+  const {
+    name,
+    image,
+    description,
+    taxApplicable,
+    tax,
+    baseAmount,
+    discount,
+    totalAmount,
+    subCategoryId,
+  } = req.body;
 
   try {
-    const updateData = {
-      name,
-      image,
-      description,
-      taxApplicable,
-      tax,
-      baseAmount,
-      discount,
-      totalAmount,
-    };
-    
-    if (subCategoryId) {
+    // Initialize an empty object for update data
+    const updateData = {};
+
+    // Conditionally add properties to updateData based on request body
+    if (name !== undefined) updateData.name = name;
+    if (image !== undefined) updateData.image = image;
+    if (description !== undefined) updateData.description = description;
+    if (taxApplicable !== undefined) updateData.taxApplicable = taxApplicable;
+    if (tax !== undefined) updateData.tax = tax;
+    if (baseAmount !== undefined) updateData.baseAmount = baseAmount;
+    if (discount !== undefined) updateData.discount = discount;
+    if (totalAmount !== undefined) updateData.totalAmount = totalAmount;
+
+    // Conditionally handle subCategoryId
+    if (subCategoryId !== undefined) {
       updateData.subCategory = { connect: { id: subCategoryId } };
     }
-    
+
+    // Perform the update
     const updatedItem = await prisma.item.update({
       where: { id: parseInt(itemId) },
       data: updateData,
     });
 
-    res.status(200).json({ success: true, message: "Item updated successfully", updatedItem });
+    res.status(200).json({
+      success: true,
+      message: "Item updated successfully",
+      updatedItem,
+    });
   } catch (error) {
     console.error(`Failed to update item with ID ${itemId}:`, error);
     res.status(500).json({ success: false, error: "Failed to update item." });
   }
 };
+

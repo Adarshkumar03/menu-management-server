@@ -1,10 +1,11 @@
 import { Router } from "express";
-import * as categoryControllers from "../controllers/subCategoryControllers.js";
+import * as subCategoryControllers from "../controllers/subCategoryControllers.js";
 const router = Router();
 
-router.get("/", categoryControllers.getSubCategories);
-router.get("/:subCategoryId", categoryControllers.getSubCategory);
-router.post("/", categoryControllers.createSubCategory);
-router.post("/:subCategoryId", categoryControllers.updateSubCategory);
+router.get("/", subCategoryControllers.getSubCategories);
+router.get("/:subCategoryId", subCategoryControllers.getSubCategory);
+router.get("/:subCategoryId/items", subCategoryControllers.getItems);
+router.post("/", subCategoryControllers.createSubCategory);
+router.post("/:subCategoryId", subCategoryControllers.updateSubCategory);
 
 export default router;

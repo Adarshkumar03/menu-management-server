@@ -39,6 +39,33 @@ export const getSubCategory = async (req, res) => {
   }
 };
 
+export const getItems = async (req, res) => {
+  const subCategoryId = parseInt(req.params.subCategoryId);
+  try {
+    const items = await prisma.subCategory.findMany({
+      where: {
+        id: subCategoryId,
+      },
+      include: {
+        items: true,
+      },
+    });
+
+    if (items.length) {
+      res
+        .status(404)
+        .json({ success: false, error: "No Items found in this subCategory" });
+    }
+    res.status(200).json(items);
+  } catch (error) {
+    console.error("Error fetching items:", error);
+    res.status(500).json({
+      succes: false,
+      error: "An error occurred while fetching items.",
+    });
+  }
+};
+
 export const createSubCategory = async (req, res) => {
   const { name, image, description, taxApplicable, tax, categoryId, items } =
     req.body;
@@ -66,13 +93,11 @@ export const createSubCategory = async (req, res) => {
       },
     });
 
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "SubCategory created successfully",
-        newSubCategory,
-      });
+    res.status(201).json({
+      success: true,
+      message: "SubCategory created successfully",
+      newSubCategory,
+    });
   } catch (error) {
     console.error("Failed to create subcategory:", error);
     res
@@ -86,25 +111,34 @@ export const updateSubCategory = async (req, res) => {
   const { name, image, description, taxApplicable, tax, items } = req.body;
 
   try {
+    // Initialize an empty object for update data
+    const updateData = {};
+
+    // Conditionally add properties to updateData based on request body
+    if (name !== undefined) updateData.name = name;
+    if (image !== undefined) updateData.image = image;
+    if (description !== undefined) updateData.description = description;
+    if (taxApplicable !== undefined) updateData.taxApplicable = taxApplicable;
+    if (tax !== undefined) updateData.tax = tax;
+
+    // Conditionally handle items
+    if (items && items.length > 0) {
+      updateData.items = {
+        connect: items.map((id) => ({ id })),
+      };
+    }
+
+    // Perform the update
     const updatedSubCategory = await prisma.subCategory.update({
       where: { id: parseInt(subCategoryId) },
-      data: {
-        name,
-        image,
-        description,
-        taxApplicable,
-        tax,
-        items: items ? { connect: items.map((id) => ({ id })) } : undefined,
-      },
+      data: updateData,
     });
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "SubCategory updated successfully",
-        updatedSubCategory,
-      });
+    res.status(200).json({
+      success: true,
+      message: "SubCategory updated successfully",
+      updatedSubCategory,
+    });
   } catch (error) {
     console.error(
       `Failed to update subcategory with ID ${subCategoryId}:`,
