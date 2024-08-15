@@ -298,26 +298,9 @@ async function main() {
       },
     ],
   });
-
-  console.log({
-    appetizers,
-    mainCourse,
-    desserts,
-    beverages,
-    sides,
-    specials,
-    salads,
-    soups,
-    pasta,
-    grills,
-    cakes,
-    iceCreams,
-    softDrinks,
-    fries,
-    chefSpecials,
-  });
 }
 
+// Execute the main function and handle any potential errors
 main()
   .then(async () => {
     await prisma.$disconnect();

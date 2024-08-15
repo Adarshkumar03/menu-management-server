@@ -5,55 +5,56 @@ import cors from "cors";
 import morgan from "morgan";
 import rateLimit from "express-rate-limit";
 
+// Load environment variables from .env file
 dotenv.config();
 
 const app = express();
 
-// Security Middleware
+// Security middleware: Protects against common web vulnerabilities
 app.use(helmet());
 
-// Logging Middleware
+// Logging middleware: Logs incoming requests for debugging and monitoring
 app.use(morgan("dev"));
 
-// Rate Limiting Middleware
+// Rate limiting middleware: Prevents excessive requests from a single IP
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+  max: 100, // Limit each IP to 100 requests per window
 });
 app.use(limiter);
 
-// CORS Middleware
+// CORS middleware: Allows cross-origin requests (if needed)
 app.use(cors());
 
-// Parsing Middleware
+// Parsing middleware: Parses incoming request bodies as JSON or URL-encoded data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Route Imports
+// Import route handlers for categories, items, and subcategories
 import categoryRoutes from "./routes/category.js";
 import itemRoutes from "./routes/item.js";
 import subCategoryRoutes from "./routes/subCategory.js";
 
-//Entry Route
-app.get("/", () => {
-  res.json(200).json({
+// Mount route handlers at their respective paths
+app.use("/category", categoryRoutes);
+app.use("/subCategory", subCategoryRoutes);
+app.use("/item", itemRoutes);
+
+// Error handling middleware: Handles uncaught errors and sends appropriate response
+app.use((err, req, res, next) => {
+  console.error(err.stack); // Log error for debugging
+  res.status(500).json({ success: false, error: "Something went wrong!" });
+});
+
+// Default route: Provides a welcome message
+app.get("/", (req, res) => {
+  res.status(200).json({
     message:
       "Welcome to the Menu Management API. Manage categories, subcategories, and items efficiently.",
   });
 });
 
-// Route Middleware
-app.use("/category", categoryRoutes);
-app.use("/subCategory", subCategoryRoutes);
-app.use("/item", itemRoutes);
-
-// Error Handling Middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ success: false, error: "Something went wrong!" });
-});
-
-// Start Server
+// Start the server on the specified port (or default to 3000)
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`App Listening on PORT ${PORT}`);

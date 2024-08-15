@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
+//Fetch all items
 export const getItems = async (req, res) => {
   try {
     const items = await prisma.item.findMany();
@@ -11,6 +12,7 @@ export const getItems = async (req, res) => {
   }
 };
 
+//Fetch a specific Item
 export const getItem = async (req, res) => {
   const { itemId } = req.params;
   try {
@@ -29,25 +31,32 @@ export const getItem = async (req, res) => {
   }
 };
 
+//Fetch item by name
 export const getItemByName = async (req, res) => {
-  const { name } = req.body;
+  // Extract and decode the item name from the URL parameters
+  const name = decodeURIComponent(req.params.name);
   try {
+    // Search for the first item in the database that matches the provided name
     const item = await prisma.item.findFirst({
       where: { name },
     });
 
+    // If the item is not found, return a 404 response with an error message
     if (!item) {
       return res.status(404).json({ success: false, error: "Item not found." });
     }
 
+    // If the item is found, return it with a 200 status code
     res.status(200).json(item);
   } catch (error) {
+    // Log any errors and return a 500 response with an error message
     console.error(`Failed to fetch item with name ${name}:`, error);
     res.status(500).json({ success: false, error: "Failed to fetch item." });
   }
 };
 
 export const createItem = async (req, res) => {
+  // Destructure the necessary fields from the request body
   const {
     name,
     image,
@@ -60,11 +69,15 @@ export const createItem = async (req, res) => {
     totalAmount,
   } = req.body;
 
+  // Check if the required fields are present in the request body
   if (!name || !subCategoryId || !baseAmount || !totalAmount) {
-    return res.status(400).json({ success: false, error: "Missing required fields." });
+    return res
+      .status(400)
+      .json({ success: false, error: "Missing required fields." }); // Respond with a 400 status if any required field is missing
   }
 
   try {
+    // Create a new item in the database with the provided data
     const newItem = await prisma.item.create({
       data: {
         name,
@@ -76,17 +89,22 @@ export const createItem = async (req, res) => {
         discount,
         totalAmount,
         subCategory: {
-          connect: { id: subCategoryId },
+          connect: { id: subCategoryId }, // Connect the item to the specified subcategory by its ID
         },
       },
     });
 
-    res.status(201).json({ success: true, message: "Item created successfully", newItem });
+    // Respond with a success message and the created item
+    res
+      .status(201)
+      .json({ success: true, message: "Item created successfully", newItem });
   } catch (error) {
+    // Log any errors and respond with a 500 status code and error message
     console.error("Failed to create item:", error);
     res.status(500).json({ success: false, error: "Failed to create item." });
   }
 };
+
 
 export const updateItem = async (req, res) => {
   const { itemId } = req.params;
@@ -137,4 +155,3 @@ export const updateItem = async (req, res) => {
     res.status(500).json({ success: false, error: "Failed to update item." });
   }
 };
-

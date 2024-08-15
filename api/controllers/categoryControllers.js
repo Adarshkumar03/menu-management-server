@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
+//Fetch all categories
 export const getCategories = async (req, res) => {
   try {
     const categories = await prisma.category.findMany();
@@ -12,6 +13,7 @@ export const getCategories = async (req, res) => {
   }
 };
 
+//Fetch Single Category by ID
 export const getCategory = async (req, res) => {
   const { categoryId } = req.params;
   try {
@@ -34,6 +36,7 @@ export const getCategory = async (req, res) => {
   }
 };
 
+//Fetch all subCategories under Category
 export const getSubCategories = async (req, res) => {
   const categoryId = parseInt(req.params.categoryId);
   try {
@@ -58,9 +61,11 @@ export const getSubCategories = async (req, res) => {
   }
 };
 
+//Fetch all Items under Category
 export const getItems = async (req, res) => {
   const categoryId = parseInt(req.params.categoryId);
   try {
+    //Fetch all subcategories under category
     const subCategories = await prisma.subCategory.findMany({
       where: {
         categoryId: categoryId,
@@ -74,8 +79,10 @@ export const getItems = async (req, res) => {
         .status(404)
         .json({ message: "No subcategories found for this category." });
     }
+    //map all subcategory ids into an array
     const subCategoryIds = subCategories.map((subCategory) => subCategory.id);
 
+    //Find all items belonging to these subcategories
     const items = await prisma.item.findMany({
       where: {
         subCategoryId: {
@@ -96,6 +103,7 @@ export const getItems = async (req, res) => {
   }
 };
 
+//Create a Category
 export const createCategory = async (req, res) => {
   const {
     name,
@@ -107,25 +115,28 @@ export const createCategory = async (req, res) => {
     subCategories,
   } = req.body;
 
-  if (!name || !subCategories) {
-    return res
-      .status(400)
-      .json({ success: false, error: "Name and subCategories are required." });
+  if (!name) {
+    return res.status(400).json({ success: false, error: "Name is required." });
   }
 
   try {
+    const categoryData = {
+      name,
+      image,
+      description,
+      taxApplicable,
+      tax,
+      taxType,
+    };
+    // Only add subCategories if they exist
+    if (subCategories && subCategories.length > 0) {
+      categoryData.subCategories = {
+        connect: subCategories.map((id) => ({ id })),
+      };
+    }
+
     const category = await prisma.category.create({
-      data: {
-        name,
-        image,
-        description,
-        taxApplicable,
-        tax,
-        taxType,
-        subCategories: {
-          connect: subCategories.map((id) => ({ id })),
-        },
-      },
+      data: categoryData,
     });
 
     res.status(201).json({
@@ -141,6 +152,7 @@ export const createCategory = async (req, res) => {
   }
 };
 
+//Update Category
 export const updateCategory = async (req, res) => {
   const { categoryId } = req.params;
   console.log(categoryId);
