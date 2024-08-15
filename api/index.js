@@ -34,6 +34,14 @@ import categoryRoutes from "./routes/category.js";
 import itemRoutes from "./routes/item.js";
 import subCategoryRoutes from "./routes/subCategory.js";
 
+//Entry Route
+app.get("/", () => {
+  res.json(200).json({
+    message:
+      "Welcome to the Menu Management API. Manage categories, subcategories, and items efficiently.",
+  });
+});
+
 // Route Middleware
 app.use("/category", categoryRoutes);
 app.use("/subCategory", subCategoryRoutes);
