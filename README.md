@@ -33,6 +33,8 @@ This project is a Node.js backend server for managing a hierarchical menu system
    `npx prisma migrate dev`
 5. **Start the server**
    `npm start`
+6. **To run tests**
+   `npx jest`   
 
 ## API Routes
 

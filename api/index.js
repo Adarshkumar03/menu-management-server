@@ -54,8 +54,12 @@ app.get("/", (req, res) => {
   });
 });
 
-// Start the server on the specified port (or default to 3000)
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`App Listening on PORT ${PORT}`);
-});
+// Start the server only if not in test environment
+if (process.env.NODE_ENV !== "test") {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`App Listening on PORT ${PORT}`);
+  });
+}
+
+export default app;

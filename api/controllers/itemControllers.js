@@ -148,7 +148,7 @@ export const updateItem = async (req, res) => {
       data: updateData,
     });
 
-    res.status(200).json({
+    res.status(201).json({
       success: true,
       message: "Item updated successfully",
       updatedItem,

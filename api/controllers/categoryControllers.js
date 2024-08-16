@@ -191,7 +191,7 @@ export const updateCategory = async (req, res) => {
       data: updateData,
     });
 
-    res.status(200).json({
+    res.status(201).json({
       success: true,
       message: "Category updated successfully",
       updatedCategory,
